@@ -14,8 +14,8 @@ const port = process.env.PORT || 3000; // Default to 3000 if PORT is not set
 
 app.use(cors());
 app.use(express.json());
-app.use(bodyParser.json()); // for parsing application/json
-app.use(bodyParser.urlencoded({ extended: true })); // for parsing application/x-www-form-urlencoded
+app.use(bodyParser.json({ limit: "10mb" })); // for parsing application/json
+app.use(bodyParser.urlencoded({ limit: "10mb", extended: true })); // for parsing application/x-www-form-urlencoded
 
 mongoose.set("strictQuery", false); // Deprecation issue
 

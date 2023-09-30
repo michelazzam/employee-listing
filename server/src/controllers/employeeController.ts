@@ -57,7 +57,7 @@ export const createEmployee = async (
     const alreadyAdded = await Employee.findOne({ email: email });
 
     if (alreadyAdded) {
-      res.status(400).json({ message: "Email already exists" }); // Sending error response in case of missing required fields
+      res.status(200).json({ message: "Email already exists" }); // Sending error response in case of missing required fields
       return;
     }
 
