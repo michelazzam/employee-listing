@@ -1,5 +1,23 @@
 import React, { useState } from "react";
 import { Button, Modal, Form } from "react-bootstrap";
+import countries from "../constants/countryCode";
+import CountrySelect from "./CountrySelect";
+import axios from "axios";
+
+interface Country {
+  name: string;
+  native: string;
+  phone: number[];
+  continent: string;
+  capital: string;
+  currency: string[];
+  languages: string[];
+  phoneLength: number;
+}
+
+interface Countries {
+  [key: string]: Country;
+}
 
 interface Employee {
   _id: string;
@@ -13,13 +31,13 @@ interface Employee {
 interface EmployeeModalProps {
   show: boolean;
   handleClose: () => void;
-  handleSave: (employee: Employee) => void;
+  handleListing: () => void;
 }
 
 const EmployeeModal: React.FC<EmployeeModalProps> = ({
   show,
   handleClose,
-  handleSave,
+  handleListing,
 }) => {
   const [employee, setEmployee] = useState<Employee>({
     _id: "",
@@ -29,6 +47,16 @@ const EmployeeModal: React.FC<EmployeeModalProps> = ({
     country: "",
     profilePicture: "",
   });
+  const [selectedCountry, setSelectedCountry] = useState("");
+  const [error, setError] = useState("");
+
+  const handleCountryChange = (countryCode: string, countryName: string) => {
+    setEmployee({
+      ...employee,
+      country: countryName,
+    });
+    setSelectedCountry(countryCode);
+  };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -46,8 +74,39 @@ const EmployeeModal: React.FC<EmployeeModalProps> = ({
   };
 
   const handleSaveClick = () => {
-    handleSave(employee);
-    handleClose();
+    if (!employee.fullName || !employee.email) {
+      setError("Please enter full name and email");
+    } else {
+      setError("");
+      handleAdd(employee);
+    }
+  };
+
+  const handleAdd = ({
+    fullName,
+    email,
+    dateOfBirth,
+    country,
+    profilePicture,
+  }: Employee) => {
+    axios
+      .post("http://localhost:3000/employee/create", {
+        fullName,
+        email,
+        dateOfBirth,
+        country,
+        profilePicture,
+      })
+      .then((response) => {
+        console.log(response);
+        if (response.status !== 200) {
+          setError(response.data.message);
+          return;
+        } else {
+          handleListing();
+          handleClose();
+        }
+      });
   };
 
   return (
@@ -89,14 +148,11 @@ const EmployeeModal: React.FC<EmployeeModalProps> = ({
             />
           </Form.Group>
 
-          <Form.Group controlId="formBasicEmail">
+          <Form.Group controlId="formBasicCountry">
             <Form.Label>Country</Form.Label>
-            <Form.Control
-              type="text"
-              placeholder="Enter Country"
-              name="country"
-              value={employee.country}
-              onChange={handleChange}
+            <CountrySelect
+              selectedCountry={selectedCountry}
+              onCountryChange={handleCountryChange}
             />
           </Form.Group>
 
@@ -111,6 +167,7 @@ const EmployeeModal: React.FC<EmployeeModalProps> = ({
             />
           </Form.Group>
         </Form>
+        {error && <p style={{ color: "red" }}>{error}</p>}
       </Modal.Body>
       <Modal.Footer>
         <Button variant="secondary" onClick={handleClose}>

@@ -17,6 +17,7 @@ interface Employee {
 const Employees: React.FC = () => {
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [customEmployee, setCustomEmployee] = useState<Employee | null>(null);
+  const [openModal, setOpenModal] = useState<boolean>(false);
 
   useEffect(() => {
     handleListing();
@@ -37,14 +38,6 @@ const Employees: React.FC = () => {
       });
   };
 
-  const handleAdd = (obj: Employee) => {
-    axios
-      .post("http://localhost:3000/employee/create", obj)
-      .then((response) => {
-        handleListing();
-      });
-  };
-
   const handleEdit = (obj: Employee) => {
     axios.put("http://localhost:3000/employee/update", obj).then((response) => {
       setCustomEmployee(null);
@@ -53,33 +46,21 @@ const Employees: React.FC = () => {
 
   return (
     <div>
-      <header>
+      <header className="d-flex justify-content-between w-50 mb-2 mt-2">
         <h1>Employee Listing</h1>
-        <Button
-          href="#"
-          style={{ marginRight: "10px" }}
-          onClick={() =>
-            setCustomEmployee({
-              _id: "6517f0144780c8d70724661f",
-              fullName: "georges",
-              email: "john@gmail.com",
-              dateOfBirth: "1990-01-01T00:00:00.000Z",
-              country: "India",
-            })
-          }
-        >
+        <Button href="#" variant="success" onClick={() => setOpenModal(true)}>
           Add
         </Button>
       </header>
       <table>
         <tbody>
-          <TableData employeesList={employees} />
+          <TableData employeesList={employees} handleDelete={handleDelete} />
         </tbody>
       </table>
       <EmployeeModal
-        show={customEmployee ? true : false}
-        handleClose={() => setCustomEmployee(null)}
-        handleSave={(employee) => setCustomEmployee(employee)}
+        show={openModal}
+        handleClose={() => setOpenModal(false)}
+        handleListing={handleListing}
       />
     </div>
   );

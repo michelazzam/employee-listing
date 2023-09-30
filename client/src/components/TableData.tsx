@@ -11,9 +11,13 @@ interface Employee {
 
 interface TableDataProps {
   employeesList: Employee[];
+  handleDelete: (id: string) => void;
 }
 
-const TableData: React.FC<TableDataProps> = ({ employeesList }) => {
+const TableData: React.FC<TableDataProps> = ({
+  employeesList,
+  handleDelete,
+}) => {
   const theadContent = [
     "_id",
     "Full Name",
@@ -34,25 +38,44 @@ const TableData: React.FC<TableDataProps> = ({ employeesList }) => {
           </tr>
         </thead>
         <tbody>
-          {employeesList?.map((item, index) => (
-            <tr key={index}>
-              <td>{item._id}</td>
-              <td>{item.fullName}</td>
-              <td>{item.email}</td>
-              <td>{item.dateOfBirth}</td>
-              <td>{item.country}</td>
-              <td>item.profilePicture</td>
+          {employeesList?.map((item, index) => {
+            const date = new Date(item.dateOfBirth?.toString());
+            return (
+              <tr key={index}>
+                <td>{item._id}</td>
+                <td>{item.fullName}</td>
+                <td>{item.email}</td>
+                <td>
+                  {item.dateOfBirth
+                    ? `${
+                        date.getMonth() + 1
+                      }/${date.getDate()}/${date.getFullYear()}`
+                    : ""}
+                </td>
+                <td>{item.country}</td>
+                <td>item.profilePicture</td>
 
-              <td>
-                <ButtonGroup aria-label="Employee action">
-                  <Button href="#" style={{ marginRight: "10px" }}>
-                    Edit
-                  </Button>
-                  <Button href="#">X</Button>
-                </ButtonGroup>
-              </td>
-            </tr>
-          ))}
+                <td>
+                  <ButtonGroup aria-label="Employee action">
+                    <Button
+                      variant="secondary"
+                      href="#"
+                      style={{ marginRight: "10px" }}
+                    >
+                      Edit
+                    </Button>
+                    <Button
+                      variant="danger"
+                      href="#"
+                      onClick={() => handleDelete(item._id)}
+                    >
+                      X
+                    </Button>
+                  </ButtonGroup>
+                </td>
+              </tr>
+            );
+          })}
         </tbody>
       </Table>
     </>
