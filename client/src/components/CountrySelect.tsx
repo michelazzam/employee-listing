@@ -4,12 +4,11 @@ import countries from "../constants/countryCode"; // make sure the path to count
 
 interface CountrySelectProps {
   selectedCountry: string;
-  onCountryChange: (countryCode: string, countryName: string) => void;
+  onCountryChange: (countryName: string) => void;
 }
 
 const countryOptions = Object.keys(countries).map((countryCode) => ({
-  value: countryCode,
-  label: countries[countryCode as keyof typeof countries].name,
+  label: countries?.[countryCode as keyof typeof countries]?.name,
 }));
 
 const CountrySelect: React.FC<CountrySelectProps> = ({
@@ -17,16 +16,12 @@ const CountrySelect: React.FC<CountrySelectProps> = ({
   onCountryChange,
 }) => {
   const handleCountryChange = (selectedOption: any) => {
-    console.log(selectedOption);
     // any type is used here for simplicity, but you might want to create a proper type for the selectedOption
-    onCountryChange(
-      selectedOption ? selectedOption.value : "",
-      selectedOption ? selectedOption.label : ""
-    );
+    onCountryChange(selectedOption ? selectedOption.label : "");
   };
 
   const selectedOption = selectedCountry
-    ? countryOptions.find((option) => option.value === selectedCountry)
+    ? countryOptions.find((option) => option.label === selectedCountry)
     : null;
 
   return (

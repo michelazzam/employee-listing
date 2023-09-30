@@ -4,7 +4,7 @@ interface Employee {
   _id: string;
   fullName: string;
   email: string;
-  dateOfBirth: String;
+  dateOfBirth: Date;
   country: string;
   profilePicture?: string;
 }
@@ -12,11 +12,13 @@ interface Employee {
 interface TableDataProps {
   employeesList: Employee[];
   handleDelete: (id: string) => void;
+  setEditEmployee: (obj: Employee) => void;
 }
 
 const TableData: React.FC<TableDataProps> = ({
   employeesList,
   handleDelete,
+  setEditEmployee,
 }) => {
   const theadContent = [
     "_id",
@@ -38,7 +40,7 @@ const TableData: React.FC<TableDataProps> = ({
           </tr>
         </thead>
         <tbody>
-          {employeesList?.map((item, index) => {
+          {employeesList?.map((item: Employee, index) => {
             const date = new Date(item.dateOfBirth?.toString());
             return (
               <tr key={index}>
@@ -61,6 +63,7 @@ const TableData: React.FC<TableDataProps> = ({
                       variant="secondary"
                       href="#"
                       style={{ marginRight: "10px" }}
+                      onClick={() => setEditEmployee(item)}
                     >
                       Edit
                     </Button>

@@ -1,6 +1,5 @@
-import React, { useState } from "react";
-import { Button, Modal, Form } from "react-bootstrap";
-import countries from "../constants/countryCode";
+import React, { useEffect, useState } from "react";
+import { Button, Modal, Form, Image } from "react-bootstrap";
 import CountrySelect from "./CountrySelect";
 import axios from "axios";
 
@@ -15,15 +14,11 @@ interface Country {
   phoneLength: number;
 }
 
-interface Countries {
-  [key: string]: Country;
-}
-
 interface Employee {
   _id: string;
   fullName: string;
   email: string;
-  dateOfBirth: string;
+  dateOfBirth: Date;
   country: string;
   profilePicture?: string;
 }
@@ -32,30 +27,53 @@ interface EmployeeModalProps {
   show: boolean;
   handleClose: () => void;
   handleListing: () => void;
+  editEmployee: Employee | null;
 }
 
 const EmployeeModal: React.FC<EmployeeModalProps> = ({
   show,
   handleClose,
   handleListing,
+  editEmployee,
 }) => {
   const [employee, setEmployee] = useState<Employee>({
     _id: "",
     fullName: "",
     email: "",
-    dateOfBirth: "",
+    dateOfBirth: new Date(),
     country: "",
     profilePicture: "",
   });
   const [selectedCountry, setSelectedCountry] = useState("");
   const [error, setError] = useState("");
 
-  const handleCountryChange = (countryCode: string, countryName: string) => {
+  useEffect(() => {
+    if (editEmployee) {
+      setEmployee(editEmployee);
+      setSelectedCountry(editEmployee.country);
+    }
+  }, [editEmployee]);
+
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files && event.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onloadend = () => {
+        setEmployee({
+          ...employee,
+          profilePicture: reader.result?.toString(),
+        });
+      };
+    }
+  };
+
+  const handleCountryChange = (countryName: string) => {
     setEmployee({
       ...employee,
       country: countryName,
     });
-    setSelectedCountry(countryCode);
+    setSelectedCountry(countryName);
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -69,16 +87,20 @@ const EmployeeModal: React.FC<EmployeeModalProps> = ({
   const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setEmployee({
       ...employee,
-      dateOfBirth: e.target.value,
+      dateOfBirth: new Date(e.target.value),
     });
   };
 
   const handleSaveClick = () => {
-    if (!employee.fullName || !employee.email) {
-      setError("Please enter full name and email");
+    if (editEmployee) {
+      handleEdit(employee);
     } else {
-      setError("");
-      handleAdd(employee);
+      if (!employee.fullName || !employee.email) {
+        setError("Please enter full name and email");
+      } else {
+        setError("");
+        handleAdd(employee);
+      }
     }
   };
 
@@ -98,7 +120,6 @@ const EmployeeModal: React.FC<EmployeeModalProps> = ({
         profilePicture,
       })
       .then((response) => {
-        console.log(response);
         if (response.status !== 200) {
           setError(response.data.message);
           return;
@@ -107,6 +128,18 @@ const EmployeeModal: React.FC<EmployeeModalProps> = ({
           handleClose();
         }
       });
+  };
+
+  const handleEdit = (obj: Employee) => {
+    axios.put("http://localhost:3000/employee/update", obj).then((response) => {
+      if (response.status !== 200) {
+        setError(response.data.message);
+        return;
+      } else {
+        handleListing();
+        handleClose();
+      }
+    });
   };
 
   return (
@@ -143,7 +176,9 @@ const EmployeeModal: React.FC<EmployeeModalProps> = ({
             <Form.Control
               type="date"
               name="dateOfBirth"
-              value={employee.dateOfBirth}
+              value={
+                new Date(employee.dateOfBirth)?.toISOString().split("T")[0]
+              }
               onChange={handleDateChange}
             />
           </Form.Group>
@@ -157,15 +192,17 @@ const EmployeeModal: React.FC<EmployeeModalProps> = ({
           </Form.Group>
 
           <Form.Group controlId="formBasicEmail">
-            <Form.Label>Profile Picture URL</Form.Label>
+            <Form.Label>Profile Picture</Form.Label>
             <Form.Control
-              type="text"
-              placeholder="Enter Profile Picture URL"
-              name="profilePicture"
-              value={employee.profilePicture}
-              onChange={handleChange}
+              type="file"
+              accept="image/*"
+              size="sm"
+              onChange={handleFileChange}
             />
           </Form.Group>
+          {employee?.profilePicture && (
+            <Image src={employee.profilePicture} alt="Uploaded" fluid />
+          )}
         </Form>
         {error && <p style={{ color: "red" }}>{error}</p>}
       </Modal.Body>
@@ -174,7 +211,7 @@ const EmployeeModal: React.FC<EmployeeModalProps> = ({
           Close
         </Button>
         <Button variant="primary" onClick={handleSaveClick}>
-          Save Changes
+          {editEmployee ? "Edit" : "Save Changes"}
         </Button>
       </Modal.Footer>
     </Modal>
