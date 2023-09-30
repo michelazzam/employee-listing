@@ -1,5 +1,5 @@
-// src/components/WelcomePage.tsx
 import React from "react";
+import { Button } from "react-bootstrap";
 
 const Welcome: React.FC = () => {
   return (

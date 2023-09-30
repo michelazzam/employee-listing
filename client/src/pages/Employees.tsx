@@ -1,12 +1,14 @@
 // Employees.tsx
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import TableData from "../components/TableData";
+import { Button } from "react-bootstrap";
 
 interface Employee {
   _id: string;
   fullName: string;
   email: string;
-  dateOfBirth: Date;
+  dateOfBirth: string;
   country: string;
   profilePicture: string;
 }
@@ -31,27 +33,15 @@ const Employees: React.FC = () => {
   console.log(employees);
   return (
     <div>
-      {/*... Add and Edit button logic ...*/}
+      <header>
+        <h1>Employee Listing</h1>
+        <Button href="#" style={{ marginRight: "10px" }}>
+          Add
+        </Button>
+      </header>
       <table>
-        {/*... Table headers ...*/}
         <tbody>
-          {employees?.map((employee) => (
-            <tr key={employee._id}>
-              <td>
-                <tr>
-                  <td>{employee._id}</td>
-                  <td>{employee.fullName}</td>
-                  <td>{employee.email}</td>
-                  <td>{employee.dateOfBirth.toString()}</td>
-                  <td>{employee.country}</td>
-                  <td>{employee.profilePicture}</td>
-                </tr>
-                <button onClick={() => handleDelete(employee._id)}>
-                  Delete
-                </button>
-              </td>
-            </tr>
-          ))}
+          <TableData employeesList={employees} />
         </tbody>
       </table>
     </div>
