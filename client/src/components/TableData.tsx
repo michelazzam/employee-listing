@@ -4,9 +4,9 @@ interface Employee {
   _id: string;
   fullName: string;
   email: string;
-  dateOfBirth: string;
+  dateOfBirth: String;
   country: string;
-  profilePicture: string;
+  profilePicture?: string;
 }
 
 interface TableDataProps {
