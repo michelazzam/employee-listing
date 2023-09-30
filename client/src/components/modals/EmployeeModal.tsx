@@ -1,19 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { Button, Modal, Form, Image } from "react-bootstrap";
-import CountrySelect from "./CountrySelect";
+import CountrySelect from "../CountrySelect";
 import axios from "axios";
 
-interface Country {
-  name: string;
-  native: string;
-  phone: number[];
-  continent: string;
-  capital: string;
-  currency: string[];
-  languages: string[];
-  phoneLength: number;
-}
-
+// Define the Employee interface to specify the shape of an employee object
 interface Employee {
   _id: string;
   fullName: string;
@@ -23,6 +13,7 @@ interface Employee {
   profilePicture?: string;
 }
 
+// Define the props interface to specify the shape of the props object
 interface EmployeeModalProps {
   show: boolean;
   handleClose: () => void;
@@ -30,12 +21,14 @@ interface EmployeeModalProps {
   editEmployee: Employee | null;
 }
 
+// Define the EmployeeModal functional component
 const EmployeeModal: React.FC<EmployeeModalProps> = ({
   show,
   handleClose,
   handleListing,
   editEmployee,
 }) => {
+  // Define state variables using the useState hook
   const [employee, setEmployee] = useState<Employee>({
     _id: "",
     fullName: "",
@@ -47,12 +40,14 @@ const EmployeeModal: React.FC<EmployeeModalProps> = ({
   const [selectedCountry, setSelectedCountry] = useState("");
   const [error, setError] = useState("");
 
+  // useEffect hook to handle component did mount and update lifecycle events
   useEffect(() => {
     if (editEmployee) {
       setEmployee(editEmployee);
       setSelectedCountry(editEmployee.country);
     }
     return () => {
+      // Cleanup function to reset the state when the component is unmounted or props are changed
       setEmployee({
         _id: "",
         fullName: "",
@@ -66,6 +61,7 @@ const EmployeeModal: React.FC<EmployeeModalProps> = ({
     };
   }, [editEmployee]);
 
+  // Function to handle file input change event
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files && event.target.files[0];
     if (file) {
@@ -80,6 +76,7 @@ const EmployeeModal: React.FC<EmployeeModalProps> = ({
     }
   };
 
+  // Function to handle country selection change
   const handleCountryChange = (countryName: string) => {
     setEmployee({
       ...employee,
@@ -88,6 +85,7 @@ const EmployeeModal: React.FC<EmployeeModalProps> = ({
     setSelectedCountry(countryName);
   };
 
+  // General function to handle input field change
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setEmployee({
@@ -96,6 +94,7 @@ const EmployeeModal: React.FC<EmployeeModalProps> = ({
     });
   };
 
+  // Function to handle date input field change
   const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setEmployee({
       ...employee,
@@ -103,6 +102,7 @@ const EmployeeModal: React.FC<EmployeeModalProps> = ({
     });
   };
 
+  // Function to handle save button click event
   const handleSaveClick = () => {
     if (editEmployee) {
       handleEdit(employee);
@@ -115,6 +115,7 @@ const EmployeeModal: React.FC<EmployeeModalProps> = ({
     }
   };
 
+  // Function to handle addition of a new employee using Axios POST request
   const handleAdd = ({
     fullName,
     email,
@@ -130,7 +131,7 @@ const EmployeeModal: React.FC<EmployeeModalProps> = ({
     formData.append("profilePicture", profilePicture || "");
 
     axios
-      .post("http://localhost:3000/employee/create", formData, {
+      .post(`${process.env.REACT_APP_API_URL}/employee/create`, formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
@@ -145,10 +146,25 @@ const EmployeeModal: React.FC<EmployeeModalProps> = ({
       });
   };
 
+  // Function to handle editing of an existing employee using Axios PUT request
   const handleEdit = (obj: Employee) => {
     try {
+      const formData = new FormData();
+      obj.fullName && formData.append("fullName", obj.fullName);
+      obj.email && formData.append("email", obj.email);
+      obj.dateOfBirth &&
+        formData.append("dateOfBirth", obj.dateOfBirth?.toString());
+      obj.country && formData.append("country", obj.country);
+      obj.profilePicture &&
+        formData.append("profilePicture", obj.profilePicture || "");
+      formData.append("_id", obj._id);
+
       axios
-        .put("http://localhost:3000/employee/update", obj)
+        .put(`${process.env.REACT_APP_API_URL}/employee/update`, formData, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        })
         .then((response) => {
           console.log(response);
           if (response.data.error) {
@@ -163,6 +179,7 @@ const EmployeeModal: React.FC<EmployeeModalProps> = ({
     }
   };
 
+  // Function to handle successful response from the server
   const successResponse = () => {
     setError("");
     handleListing();

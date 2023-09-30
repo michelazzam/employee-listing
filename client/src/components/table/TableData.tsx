@@ -1,4 +1,4 @@
-import { Badge, Button, ButtonGroup, Image, Table } from "react-bootstrap";
+import { Button, ButtonGroup, Image, Table } from "react-bootstrap";
 
 interface Employee {
   _id: string;
