@@ -68,3 +68,5 @@ app.use(errorHandler);
 const server = app.listen(port, () => {
   console.log(`app is running on port: ${port}`);
 });
+
+export { app };
