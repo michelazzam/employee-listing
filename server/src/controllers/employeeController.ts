@@ -49,7 +49,7 @@ export const createEmployee = async (
   try {
     const { fullName, email } = req.body; // Destructuring the request body to get the fullName and email
     if (!fullName || !email) {
-      res.status(400).json({ message: "Missing required fields" }); // Sending error response in case of missing required fields
+      res.json({ error: true, message: "Missing required fields" }); // Sending error response in case of missing required fields
       return;
     }
 
@@ -57,7 +57,7 @@ export const createEmployee = async (
     const alreadyAdded = await Employee.findOne({ email: email });
 
     if (alreadyAdded) {
-      res.status(200).json({ message: "Email already exists" }); // Sending error response in case of missing required fields
+      res.json({ error: true, message: "Email already exists" }); // Sending error response in case of missing required fields
       return;
     }
 
@@ -91,7 +91,7 @@ export const updateEmployee = async (
       fullName === "" ||
       email === ""
     ) {
-      res.status(400).json({ message: "Required fields cannot be empty" }); // Sending error response in case of missing required fields
+      res.json({ error: true, message: "Required fields cannot be empty" }); // Sending error response in case of missing required fields
       return;
     }
 
@@ -102,7 +102,7 @@ export const updateEmployee = async (
         alreadyExistingEmail &&
         alreadyExistingEmail._id.toString() !== req.body._id
       ) {
-        res.status(400).json({ message: "Email cannot be used" }); // Sending error response when email is already used
+        res.json({ error: true, message: "Email cannot be used" }); // Sending error response when email is already used
         return;
       }
     }
@@ -132,13 +132,13 @@ export const deleteEmployee = async (
 ): Promise<void> => {
   try {
     if (!req.body._id) {
-      res.status(400).json({ message: "Employee ID missing" }); // if the employee ID is not provided
+      res.json({ error: true, message: "Employee ID missing" }); // if the employee ID is not provided
       return;
     }
     const deletedEmployee = await Employee.findByIdAndDelete(req.body._id); // Finding and deleting the employee by ID
 
     if (!deletedEmployee) {
-      res.status(400).json({ message: "Employee not available" }); // returning employee is not found
+      res.json({ error: true, message: "Employee not available" }); // returning employee is not found
       return;
     }
 

@@ -52,6 +52,18 @@ const EmployeeModal: React.FC<EmployeeModalProps> = ({
       setEmployee(editEmployee);
       setSelectedCountry(editEmployee.country);
     }
+    return () => {
+      setEmployee({
+        _id: "",
+        fullName: "",
+        email: "",
+        dateOfBirth: new Date(),
+        country: "",
+        profilePicture: "",
+      });
+      setSelectedCountry("");
+      setError("");
+    };
   }, [editEmployee]);
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -98,7 +110,6 @@ const EmployeeModal: React.FC<EmployeeModalProps> = ({
       if (!employee.fullName || !employee.email) {
         setError("Please enter full name and email");
       } else {
-        setError("");
         handleAdd(employee);
       }
     }
@@ -111,35 +122,51 @@ const EmployeeModal: React.FC<EmployeeModalProps> = ({
     country,
     profilePicture,
   }: Employee) => {
+    const formData = new FormData();
+    formData.append("fullName", fullName);
+    formData.append("email", email);
+    formData.append("dateOfBirth", dateOfBirth?.toString());
+    formData.append("country", country);
+    formData.append("profilePicture", profilePicture || "");
+
     axios
-      .post("http://localhost:3000/employee/create", {
-        fullName,
-        email,
-        dateOfBirth,
-        country,
-        profilePicture,
+      .post("http://localhost:3000/employee/create", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
       })
       .then((response) => {
-        if (response.status !== 200) {
+        if (response.data.error) {
           setError(response.data.message);
           return;
         } else {
-          handleListing();
-          handleClose();
+          successResponse();
         }
       });
   };
 
   const handleEdit = (obj: Employee) => {
-    axios.put("http://localhost:3000/employee/update", obj).then((response) => {
-      if (response.status !== 200) {
-        setError(response.data.message);
-        return;
-      } else {
-        handleListing();
-        handleClose();
-      }
-    });
+    try {
+      axios
+        .put("http://localhost:3000/employee/update", obj)
+        .then((response) => {
+          console.log(response);
+          if (response.data.error) {
+            setError(response.data.message);
+            return;
+          } else {
+            successResponse();
+          }
+        });
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  const successResponse = () => {
+    setError("");
+    handleListing();
+    handleClose();
   };
 
   return (
@@ -177,7 +204,9 @@ const EmployeeModal: React.FC<EmployeeModalProps> = ({
               type="date"
               name="dateOfBirth"
               value={
-                new Date(employee.dateOfBirth)?.toISOString().split("T")[0]
+                employee.dateOfBirth
+                  ? new Date(employee.dateOfBirth)?.toISOString().split("T")[0]
+                  : ""
               }
               onChange={handleDateChange}
             />

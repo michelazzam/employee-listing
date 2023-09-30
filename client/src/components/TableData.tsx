@@ -1,4 +1,4 @@
-import { Badge, Button, ButtonGroup, Table } from "react-bootstrap";
+import { Badge, Button, ButtonGroup, Image, Table } from "react-bootstrap";
 
 interface Employee {
   _id: string;
@@ -41,7 +41,10 @@ const TableData: React.FC<TableDataProps> = ({
         </thead>
         <tbody>
           {employeesList?.map((item: Employee, index) => {
-            const date = new Date(item.dateOfBirth?.toString());
+            let date = new Date();
+            if (item.dateOfBirth) {
+              date = new Date(item.dateOfBirth?.toString());
+            }
             return (
               <tr key={index}>
                 <td>{item._id}</td>
@@ -55,7 +58,18 @@ const TableData: React.FC<TableDataProps> = ({
                     : ""}
                 </td>
                 <td>{item.country}</td>
-                <td>item.profilePicture</td>
+                <td>
+                  {item.profilePicture ? (
+                    <Image
+                      style={{ height: "70px" }}
+                      src={item.profilePicture}
+                      alt="listing image"
+                      fluid
+                    />
+                  ) : (
+                    ""
+                  )}
+                </td>
 
                 <td>
                   <ButtonGroup aria-label="Employee action">

@@ -6,6 +6,7 @@ import {
   updateEmployee,
 } from "../controllers/employeeController";
 import express, { Request, Response, NextFunction } from "express";
+import { imageHandler } from "../middlewares/imageHandling";
 
 const router = express.Router();
 
@@ -13,10 +14,10 @@ const router = express.Router();
 router.get("/list", listEmployees);
 
 // // POST Create Employee
-router.post("/create", createEmployee);
+router.post("/create", imageHandler, createEmployee);
 
 // // PUT Update Employee
-router.put("/update", updateEmployee);
+router.put("/update", imageHandler, updateEmployee);
 
 // // DELETE Delete Employee
 router.delete("/delete", deleteEmployee);
