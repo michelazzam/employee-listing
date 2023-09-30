@@ -1,0 +1,16 @@
+{
+  "name": "employee-listing",
+  "version": "1.0.0",
+  "description": "Run concurrently backend and frontend",
+  "scripts": {
+    "client": "npm start --prefix client",
+    "server": "npm start --prefix server",
+    "dev": "concurrently \"npm run server\" \"npm run client\""
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "concurrently": "^8.2.1",
+    "nodemon": "^3.0.1"
+  }
+}
