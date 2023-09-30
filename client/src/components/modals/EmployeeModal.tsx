@@ -47,19 +47,23 @@ const EmployeeModal: React.FC<EmployeeModalProps> = ({
       setSelectedCountry(editEmployee.country);
     }
     return () => {
-      // Cleanup function to reset the state when the component is unmounted or props are changed
-      setEmployee({
-        _id: "",
-        fullName: "",
-        email: "",
-        dateOfBirth: new Date(),
-        country: "",
-        profilePicture: "",
-      });
-      setSelectedCountry("");
-      setError("");
+      cleanup();
     };
   }, [editEmployee]);
+
+  // Cleanup function to reset the state when the component is unmounted or props are changed
+  const cleanup = () => {
+    setEmployee({
+      _id: "",
+      fullName: "",
+      email: "",
+      dateOfBirth: new Date(),
+      country: "",
+      profilePicture: "",
+    });
+    setSelectedCountry("");
+    setError("");
+  };
 
   // Function to handle file input change event
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
